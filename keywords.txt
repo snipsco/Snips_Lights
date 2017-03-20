@@ -1,0 +1,40 @@
+#######################################
+# Syntax Coloring Map For Snips_Lights
+####################################### 
+# Class
+#######################################
+
+SLState	KEYWORD1
+
+Snips_Lights	KEYWORD1
+
+#######################################
+# Methods and Functions 
+#######################################	
+
+step	KEYWORD2
+period	KEYWORD2
+
+maxFrame	KEYWORD2
+setPrimaryColor	KEYWORD2
+setErrorColor	KEYWORD2
+setState	KEYWORD2
+
+setSecondaryColor	KEYWORD2
+
+#######################################
+# Constants
+#######################################
+
+BLACK	LITERAL1
+SLColor	LITERAL1
+
+HLStateNone	LITERAL1
+HLStateWakingUp	LITERAL1
+HLStateStandby	LITERAL1
+HLStateLoading	LITERAL1
+HLStateYes	LITERAL1
+HLStateError	LITERAL1
+
+HLStateListening	LITERAL1
+HLStateShuttingDown	LITERAL1
