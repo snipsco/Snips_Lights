@@ -1,12 +1,14 @@
 #include "Adafruit_NeoPixel.h"
 #include "Snips_Lights.h"
 
-Snips_Lights::Snips_Lights(Adafruit_NeoPixel *p) {
-  pixels = p;
-  _previousRotationIndex = 0;
-  setPrimaryColor(p->Color(255, 255, 255));
-  setSecondaryColor(p->Color(0, 0, 255));
-  setErrorColor(p->Color(255, 0, 0));
+Snips_Lights::Snips_Lights(uint16_t n, uint8_t p, neoPixelType t) :
+  _pixels(n, p, t), _previousRotationIndex(0)
+{
+  _pixels.begin();
+  setState(SLStateNone);
+  setPrimaryColor(_pixels.Color(255, 255, 255));
+  setSecondaryColor(_pixels.Color(0, 0, 255));
+  setErrorColor(_pixels.Color(255, 0, 0));
 }
 
 void Snips_Lights::setPrimaryColor(SLColor color) {
@@ -30,7 +32,7 @@ void Snips_Lights::setState(SLState newState) {
       setAllPixels(SLBLACK);
       break;
     case SLStateWakingUp:
-      _animationParameters = { 30, pixels->numPixels() };
+      _animationParameters = { 30, pixelCount() };
       break;
     case SLStateStandby:
       _animationParameters = { 300, 0 };
@@ -44,18 +46,18 @@ void Snips_Lights::setState(SLState newState) {
       _animationParameters = { 100, 0 };
       break;
     case SLStateYes:
-      _animationParameters = { 100, pixels->numPixels() };
+      _animationParameters = { 100, pixelCount() };
       break;
     case SLStateError:
       _animationParameters = { 1000, 1 };
       setAllPixels(errorColor);
       break;
     case SLStateShuttingDown:
-      _animationParameters = { 30, pixels->numPixels() };
+      _animationParameters = { 30, pixelCount() };
       break;
     default:
       // Should never happen
-      exit(0);
+      while (true) {}
   }
 }
 
@@ -75,7 +77,7 @@ void Snips_Lights::transitionToNextState() {
     case SLStateLoading:
     default:
       // Should never happen
-      exit(0);
+      while (true) {}
   }
 }
 
@@ -87,7 +89,7 @@ void Snips_Lights::step() {
     return;
   }
 
-  SLPixelIndex count = pixels->numPixels();
+  SLPixelIndex count = pixelCount();
   SLPixelIndex prev = _previousRotationIndex++;
   _previousRotationIndex %= count;
   SLPixelIndex curr = _previousRotationIndex;
@@ -95,30 +97,30 @@ void Snips_Lights::step() {
     case SLStateNone:
       return;
     case SLStateWakingUp:
-      pixels->setPixelColor(curr, primaryColor);
-      pixels->show();
+      _pixels.setPixelColor(curr, primaryColor);
+      _pixels.show();
       break;
     case SLStateStandby:
       setPixel(curr, SLBLACK);
       setPixel(prev, primaryColor);
-      pixels->show();
+      _pixels.show();
       Serial.println("SLStateStandby");
       break;
     case SLStateListening:
       setPixel(curr, SLBLACK);
       setPixel(prev, secondaryColor);
-      pixels->show();
+      _pixels.show();
       Serial.println("SLStateListening");
       break;
     case SLStateLoading:
       setPixel(curr, primaryColor);
       setPixel(prev, secondaryColor);
-      pixels->show();
+      _pixels.show();
       Serial.println("SLStateLoading");
       break;
     case SLStateYes:
       setPixel(curr, primaryColor);
-      pixels->show();
+      _pixels.show();
       Serial.println("SLStateYes");
       break;
     case SLStateError:
@@ -126,28 +128,24 @@ void Snips_Lights::step() {
       break;
     case SLStateShuttingDown:
       setPixel(curr, SLBLACK);
-      pixels->show();
+      _pixels.show();
       Serial.println("SLStateShuttingDown");
       break;
     default:
       // Should never happen
-      exit(0);
+      while (true) {}
   }
   delay(_animationParameters.period);
   _currentFrame = _currentFrame + 1;
 }
 
-SLPixelIndex Snips_Lights::pixelCount() {
-  return pixels->numPixels();
-}
-
 void Snips_Lights::setPixel(SLPixelIndex index, SLColor color) {
-  pixels->setPixelColor(index % pixelCount(), color);
+  _pixels.setPixelColor(index % pixelCount(), color);
 }
 
 void Snips_Lights::setAllPixels(SLColor color) {
-  for (SLPixelIndex i = 0; i < pixels->numPixels(); i++) {
-    pixels->setPixelColor(i, color);
+  for (SLPixelIndex i = 0; i < _pixels.numPixels(); i++) {
+    _pixels.setPixelColor(i, color);
   }
-  pixels->show();
+  _pixels.show();
 }

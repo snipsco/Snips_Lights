@@ -27,9 +27,7 @@ struct SLAnimationParameters {
 class Snips_Lights {
 
  public:
-  // It is your responsibility to deallocate pixels
-  // after deallocating the returned instance
-  Snips_Lights(Adafruit_NeoPixel *pixels);
+  Snips_Lights(uint16_t n, uint8_t p=6, neoPixelType t=NEO_GRB + NEO_KHZ800);
 
   void
     setPrimaryColor(SLColor color),
@@ -38,13 +36,21 @@ class Snips_Lights {
     setState(SLState state),
     step();
 
+  SLState
+    getState() { return _currentState; }
+  Adafruit_NeoPixel
+    *getPixels() { return &_pixels; }
+  SLPixelIndex
+    pixelCount() { return _pixels.numPixels(); }
+
  private:
   void 
     transitionToNextState(),
+    setPixels(Adafruit_NeoPixel pixels),
     setPixel(SLPixelIndex index, SLColor color),
     setAllPixels(SLColor color);
   Adafruit_NeoPixel
-    *pixels;
+    _pixels;
   SLColor
     primaryColor,
     secondaryColor,
@@ -55,8 +61,6 @@ class Snips_Lights {
     // used for continuing from previous rotation animation
     _previousRotationIndex,
     _currentFrame;
-  SLPixelIndex
-    pixelCount();
   SLAnimationParameters
     _animationParameters;
 };

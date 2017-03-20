@@ -13,14 +13,13 @@
   #define PIXEL_TYPE NEO_GRB + NEO_KHZ800
 #endif
 
-Adafruit_NeoPixel pixels = Adafruit_NeoPixel(PIXELS, PIN, PIXEL_TYPE);
-Snips_Lights lights = Snips_Lights(&pixels);
+Snips_Lights *lights;
 
 void setup() {
   Serial.begin(9600);
-  pixels.begin();
-  pixels.setBrightness(40);
-  lights.setState(SLStateWakingUp);
+  lights = new Snips_Lights(PIXELS, PIN, PIXEL_TYPE);
+  lights->getPixels()->setBrightness(40);
+  lights->setState(SLStateWakingUp);
 }
 
 //  0s: wake up
@@ -32,35 +31,29 @@ void setup() {
 // 30s: restart
 
 SLTimeInterval startTime = millis();
-SLState state = SLStateWakingUp;
 
 void loop() {
+  SLState state = lights->getState();
   SLTimeInterval offset = millis() - startTime;
   if (state != SLStateListening && 5000 <= offset && offset < 10000) {
     Serial.println("Set listening");
-    state = SLStateListening;
-    lights.setState(state);
+    lights->setState(SLStateListening);
   } else if (state != SLStateLoading && 10000 <= offset && offset < 15000) {
     Serial.println("Set loading");
-    state = SLStateLoading;
-    lights.setState(state);
+    lights->setState(SLStateLoading);
   } else if (state != SLStateYes && 15000 <= offset && offset < 20000) {
     Serial.println("Set yes");
-    state = SLStateYes;
-    lights.setState(state);
+    lights->setState(SLStateYes);
   } else if (state != SLStateError && 20000 <= offset && offset < 25000) {
     Serial.println("Set error");
-    state = SLStateError;
-    lights.setState(state);
+    lights->setState(SLStateError);
   } else if (state != SLStateShuttingDown && 25000 <= offset) {
     Serial.println("Set shutting down");
-    state = SLStateShuttingDown;
-    lights.setState(state);
+    lights->setState(SLStateShuttingDown);
   } else if (30000 <= offset) {
     Serial.println("\n---\n");
-    state = SLStateWakingUp;
+    lights->setState(SLStateWakingUp);
     startTime = millis();
-    lights.setState(state);
   }
-  lights.step();
+  lights->step();
 }
