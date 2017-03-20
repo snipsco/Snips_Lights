@@ -36,18 +36,23 @@ SLState state = SLStateNone;
 void loop() {
   SLTimeInterval offset = millis() - startTime;
   if (state != SLStateListening && 5000 <= offset && offset < 10000) {
+    Serial.println("Set listening");
     state = SLStateListening;
     lights.setState(state);
   } else if (state != SLStateLoading && 10000 <= offset && offset < 15000) {
+    Serial.println("Set loading");
     state = SLStateLoading;
     lights.setState(state);
   } else if (state != SLStateYes && 15000 <= offset && offset < 20000) {
+    Serial.println("Set yes");
     state = SLStateYes;
     lights.setState(state);
   } else if (state != SLStateError && 20000 <= offset && offset < 25000) {
+    Serial.println("Set error");
     state = SLStateError;
     lights.setState(state);
   } else if (state != SLStateShuttingDown && 25000 <= offset) {
+    Serial.println("Set shutting down");
     state = SLStateShuttingDown;
     lights.setState(state);
   }
