@@ -3,6 +3,7 @@
 
 Snips_Lights::Snips_Lights(Adafruit_NeoPixel *p) {
   pixels = p;
+  _previousRotationIndex = 0;
   setPrimaryColor(p->Color(255, 255, 255));
   setSecondaryColor(p->Color(0, 0, 255));
   setErrorColor(p->Color(255, 0, 0));
@@ -22,19 +23,18 @@ void Snips_Lights::setErrorColor(SLColor color) {
 
 void Snips_Lights::setState(SLState newState) {
   _currentState = newState;
+  _currentFrame = 0;
   switch (_currentState) {
     case SLStateNone:
       _animationParameters = { 0, 0 };
-      _currentFrame = 0;
       setAllPixels(SLBLACK);
       break;
     case SLStateWakingUp:
-      _animationParameters = { 100, pixels->numPixels() };
-      _currentFrame = 0;
+      _animationParameters = { 30, pixels->numPixels() };
       break;
     case SLStateStandby:
       _animationParameters = { 300, 0 };
-      _currentFrame = 0;
+      setAllPixels(primaryColor);
       break;
     case SLStateListening:
       _animationParameters = { 100, 0 };
@@ -47,12 +47,11 @@ void Snips_Lights::setState(SLState newState) {
       _animationParameters = { 100, pixels->numPixels() };
       break;
     case SLStateError:
-      _animationParameters = { 100, pixels->numPixels() };
+      _animationParameters = { 1000, 1 };
       setAllPixels(errorColor);
       break;
     case SLStateShuttingDown:
-      _animationParameters = { 100, pixels->numPixels() };
-      _currentFrame = 0;
+      _animationParameters = { 30, pixels->numPixels() };
       break;
     default:
       // Should never happen
@@ -85,18 +84,18 @@ void Snips_Lights::step() {
   if (0 != _animationParameters.maxFrame && 
     _animationParameters.maxFrame <= _currentFrame) { 
     transitionToNextState(); 
-    return; 
+    return;
   }
 
   SLPixelIndex count = pixels->numPixels();
-  SLPixelIndex curr = _currentFrame % count;
-  SLPixelIndex next = (curr + 1) % count;
-  SLPixelIndex prev = (curr + count - 1) % count;
+  SLPixelIndex prev = _previousRotationIndex++;
+  _previousRotationIndex %= count;
+  SLPixelIndex curr = _previousRotationIndex;
   switch (_currentState) {
     case SLStateNone:
       return;
     case SLStateWakingUp:
-      pixels->setPixelColor(_currentFrame, primaryColor);
+      pixels->setPixelColor(curr, primaryColor);
       pixels->show();
       break;
     case SLStateStandby:
@@ -123,11 +122,11 @@ void Snips_Lights::step() {
       Serial.println("SLStateYes");
       break;
     case SLStateError:
-      setPixel(curr, primaryColor);
-      pixels->show();
       Serial.println("SLStateError");
       break;
     case SLStateShuttingDown:
+      setPixel(curr, SLBLACK);
+      pixels->show();
       Serial.println("SLStateShuttingDown");
       break;
     default:
@@ -135,7 +134,7 @@ void Snips_Lights::step() {
       exit(0);
   }
   delay(_animationParameters.period);
-  _currentFrame = (_currentFrame + 1) % (2 * pixelCount());
+  _currentFrame = _currentFrame + 1;
 }
 
 SLPixelIndex Snips_Lights::pixelCount() {

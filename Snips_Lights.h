@@ -52,6 +52,8 @@ class Snips_Lights {
   SLState
     _currentState;
   SLFrameIndex
+    // used for continuing from previous rotation animation
+    _previousRotationIndex,
     _currentFrame;
   SLPixelIndex
     pixelCount();
