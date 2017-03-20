@@ -14,6 +14,39 @@
 // Time interval in milliseconds
 #define SLTimeInterval unsigned long
 
+#define UPDATE_STATE(state, index) \
+  do { \
+    switch (index) { \
+      case 0: \
+        *state = SLStateNone; \
+        break; \
+      case 1: \
+        *state = SLStateWakingUp; \
+        break; \
+      case 2: \
+        *state = SLStateStandby; \
+        break; \
+      case 3: \
+        *state = SLStateListening; \
+        break; \
+      case 4: \
+        *state = SLStateLoading; \
+        break; \
+      case 5: \
+        *state = SLStateYes; \
+        break; \
+      case 6: \
+        *state = SLStateError; \
+        break; \
+      case 7: \
+        *state = SLStateShuttingDown; \
+        break; \
+      default: \
+        Serial.println("uh oh"); \
+        while (true) {} \
+    } \
+  } while (0)
+
 enum SLState {
   SLStateNone, SLStateWakingUp, SLStateStandby, SLStateListening,
   SLStateLoading, SLStateYes, SLStateError, SLStateShuttingDown
