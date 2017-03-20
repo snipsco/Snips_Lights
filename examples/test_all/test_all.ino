@@ -19,7 +19,7 @@ Snips_Lights lights = Snips_Lights(&pixels);
 void setup() {
   Serial.begin(9600);
   pixels.begin();
-  pixels.setBrightness(10);
+  pixels.setBrightness(40);
   lights.setState(SLStateWakingUp);
 }
 
