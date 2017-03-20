@@ -29,9 +29,10 @@ void setup() {
 // 15s: yes
 // 20s: error
 // 25s: shut down
+// 30s: restart
 
 SLTimeInterval startTime = millis();
-SLState state = SLStateNone;
+SLState state = SLStateWakingUp;
 
 void loop() {
   SLTimeInterval offset = millis() - startTime;
@@ -54,6 +55,11 @@ void loop() {
   } else if (state != SLStateShuttingDown && 25000 <= offset) {
     Serial.println("Set shutting down");
     state = SLStateShuttingDown;
+    lights.setState(state);
+  } else if (30000 <= offset) {
+    Serial.println("\n---\n");
+    state = SLStateWakingUp;
+    startTime = millis();
     lights.setState(state);
   }
   lights.step();
