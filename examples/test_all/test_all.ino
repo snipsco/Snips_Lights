@@ -47,7 +47,7 @@ void loop() {
   } else if (state != SLStateError && 20000 <= offset && offset < 25000) {
     Serial.println("Set error");
     lights->setState(SLStateError);
-  } else if (state != SLStateShuttingDown && 25000 <= offset) {
+  } else if (state != SLStateShuttingDown && state != SLStateNone && 25000 <= offset) {
     Serial.println("Set shutting down");
     lights->setState(SLStateShuttingDown);
   } else if (30000 <= offset) {
