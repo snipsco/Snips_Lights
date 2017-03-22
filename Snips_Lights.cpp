@@ -104,32 +104,26 @@ void Snips_Lights::step() {
       setPixel(curr, SLBLACK);
       setPixel(prev, primaryColor);
       _pixels.show();
-      Serial.println("SLStateStandby");
       break;
     case SLStateListening:
       setPixel(curr, SLBLACK);
       setPixel(prev, secondaryColor);
       _pixels.show();
-      Serial.println("SLStateListening");
       break;
     case SLStateLoading:
       setPixel(curr, primaryColor);
       setPixel(prev, secondaryColor);
       _pixels.show();
-      Serial.println("SLStateLoading");
       break;
     case SLStateYes:
       setPixel(curr, primaryColor);
       _pixels.show();
-      Serial.println("SLStateYes");
       break;
     case SLStateError:
-      Serial.println("SLStateError");
       break;
     case SLStateShuttingDown:
       setPixel(curr, SLBLACK);
       _pixels.show();
-      Serial.println("SLStateShuttingDown");
       break;
     default:
       // Should never happen
