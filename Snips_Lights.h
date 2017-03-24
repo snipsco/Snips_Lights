@@ -30,19 +30,10 @@
         *state = SLStateListening; \
         break; \
       case 4: \
-        *state = SLStateLoading; \
-        break; \
-      case 5: \
-        *state = SLStateYes; \
-        break; \
-      case 6: \
         *state = SLStateError; \
         break; \
-      case 7: \
-        *state = SLStateShuttingDown; \
-        break; \
       default: \
-        Serial.println("uh oh"); \
+        Serial.println("Unknown State"); \
         while (true) {} \
     } \
   } while (0)
@@ -62,28 +53,19 @@
       case SLStateListening: \
         Serial.println("SLStateListening"); \
         break; \
-      case SLStateLoading: \
-        Serial.println("SLStateLoading"); \
-        break; \
-      case SLStateYes: \
-        Serial.println("SLStateYes"); \
-        break; \
       case SLStateError: \
         Serial.println("SLStateError"); \
         break; \
-      case SLStateShuttingDown: \
-        Serial.println("SLStateShuttingDown"); \
-        break; \
       default: \
         // Should never happen \
-        Serial.println("unkown"); \
+        Serial.println("Unkown State"); \
         while (true) {} \
     } \
   } while (0)
 
 enum SLState {
-  SLStateNone, SLStateWakingUp, SLStateStandby, SLStateListening,
-  SLStateLoading, SLStateYes, SLStateError, SLStateShuttingDown
+  SLStateNone, SLStateWakingUp, SLStateStandby,
+  SLStateListening, SLStateError
 };
 
 struct SLAnimationParameters {

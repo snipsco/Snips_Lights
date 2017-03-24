@@ -9,8 +9,10 @@
 //   NEO_RGBW    Pixels are wired for GRBW bitstream (NeoPixel GRBW products)
 #if PIXELS_WHITE
   #define PIXEL_TYPE NEO_GRBW + NEO_KHZ800
+  #define WHITE_COLOR(pixels, value) pixels->Color(0, 0, 0, value)
 #else
   #define PIXEL_TYPE NEO_GRB + NEO_KHZ800
+  #define WHITE_COLOR(pixels, value) pixels->Color(value, value, value)
 #endif
 
 Snips_Lights *lights;
@@ -18,19 +20,19 @@ Snips_Lights *lights;
 void setup() {
   Serial.begin(9600);
   lights = new Snips_Lights(PIXELS, PIN, PIXEL_TYPE);
+  lights->setPrimaryColor(WHITE_COLOR(lights->getPixels(), 255));
   lights->getPixels()->setBrightness(40);
   lights->setState(SLStateWakingUp);
 }
 
 //  0s: wake up
 //  5s: listen
-// 10s: load
-// 15s: yes
-// 20s: error
-// 25s: shut down
-// 30s: restart
+// 10s: yes or error
+// 15s: shut down
+// 20s: restart
 
 SLTimeInterval startTime = millis();
+bool showError = false;
 
 void loop() {
   SLState state = lights->getState();
@@ -38,22 +40,22 @@ void loop() {
   if (state != SLStateListening && 5000 <= offset && offset < 10000) {
     Serial.println("Set listening");
     lights->setState(SLStateListening);
-  } else if (state != SLStateLoading && 10000 <= offset && offset < 15000) {
-    Serial.println("Set loading");
-    lights->setState(SLStateLoading);
-  } else if (state != SLStateYes && 15000 <= offset && offset < 20000) {
-    Serial.println("Set yes");
-    lights->setState(SLStateYes);
-  } else if (state != SLStateError && 20000 <= offset && offset < 25000) {
-    Serial.println("Set error");
-    lights->setState(SLStateError);
-  } else if (state != SLStateShuttingDown && state != SLStateNone && 25000 <= offset) {
-    Serial.println("Set shutting down");
-    lights->setState(SLStateShuttingDown);
-  } else if (30000 <= offset) {
+  } else if (state != SLStateError && state != SLStateStandby && 10000 <= offset && offset < 15000) {
+    if (showError) {
+      Serial.println("Set error");
+      lights->setState(SLStateError);
+    } else {
+      Serial.println("Set yes");
+      lights->setState(SLStateStandby);
+    }
+  } else if (state != SLStateNone && 15000 <= offset) {
+    Serial.println("Set none");
+    lights->setState(SLStateNone);
+  } else if (20000 <= offset) {
     Serial.println("\n---\n");
     lights->setState(SLStateWakingUp);
     startTime = millis();
+    showError = !showError;
   }
   lights->step();
 }

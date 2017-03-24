@@ -33,27 +33,19 @@ void Snips_Lights::setState(SLState newState) {
       break;
     case SLStateWakingUp:
       _animationParameters = { 30, pixelCount() };
+      setAllPixels(SLBLACK);
       break;
     case SLStateStandby:
-      _animationParameters = { 300, 0 };
+      _animationParameters = { 0, 0 };
       setAllPixels(primaryColor);
       break;
     case SLStateListening:
       _animationParameters = { 100, 0 };
       setAllPixels(secondaryColor);
       break;
-    case SLStateLoading:
-      _animationParameters = { 100, 0 };
-      break;
-    case SLStateYes:
-      _animationParameters = { 100, pixelCount() };
-      break;
     case SLStateError:
       _animationParameters = { 1000, 1 };
       setAllPixels(errorColor);
-      break;
-    case SLStateShuttingDown:
-      _animationParameters = { 30, pixelCount() };
       break;
     default:
       // Should never happen
@@ -64,17 +56,12 @@ void Snips_Lights::setState(SLState newState) {
 void Snips_Lights::transitionToNextState() {
   switch (_currentState) {
     case SLStateWakingUp:
-    case SLStateYes:
     case SLStateError:
       setState(SLStateStandby);
       break;
-    case SLStateShuttingDown:
-      setState(SLStateNone);
-      break;
-    case SLStateNone:
-    case SLStateStandby: 
+    case SLStateStandby:
     case SLStateListening:
-    case SLStateLoading:
+    case SLStateNone:
     default:
       // Should never happen
       while (true) {}
@@ -83,9 +70,9 @@ void Snips_Lights::transitionToNextState() {
 
 void Snips_Lights::step() {
   if (0 == _animationParameters.period) return;
-  if (0 != _animationParameters.maxFrame && 
-    _animationParameters.maxFrame <= _currentFrame) { 
-    transitionToNextState(); 
+  if (0 != _animationParameters.maxFrame &&
+    _animationParameters.maxFrame <= _currentFrame) {
+    transitionToNextState();
     return;
   }
 
@@ -93,38 +80,26 @@ void Snips_Lights::step() {
   SLPixelIndex prev = _previousRotationIndex++;
   _previousRotationIndex %= count;
   SLPixelIndex curr = _previousRotationIndex;
+  SLPixelIndex next = (curr + 1) % count;
   switch (_currentState) {
-    case SLStateNone:
-      return;
     case SLStateWakingUp:
-      _pixels.setPixelColor(curr, primaryColor);
-      _pixels.show();
-      break;
-    case SLStateStandby:
-      setPixel(curr, SLBLACK);
-      setPixel(prev, primaryColor);
+      if (0 == _currentFrame % 2) {
+        _pixels.setPixelColor(_currentFrame / 2, primaryColor);
+      } else {
+        _pixels.setPixelColor(pixelCount() - _currentFrame / 2 - 1, primaryColor);
+      }
       _pixels.show();
       break;
     case SLStateListening:
       setPixel(curr, SLBLACK);
+      setPixel(next, SLBLACK);
       setPixel(prev, secondaryColor);
-      _pixels.show();
-      break;
-    case SLStateLoading:
-      setPixel(curr, primaryColor);
-      setPixel(prev, secondaryColor);
-      _pixels.show();
-      break;
-    case SLStateYes:
-      setPixel(curr, primaryColor);
       _pixels.show();
       break;
     case SLStateError:
       break;
-    case SLStateShuttingDown:
-      setPixel(curr, SLBLACK);
-      _pixels.show();
-      break;
+    case SLStateNone:
+    case SLStateStandby:
     default:
       // Should never happen
       while (true) {}
