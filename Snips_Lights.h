@@ -57,7 +57,6 @@
         Serial.println("SLStateError"); \
         break; \
       default: \
-        // Should never happen \
         Serial.println("Unkown State"); \
         while (true) {} \
     } \

@@ -1,8 +1,6 @@
 #include "Adafruit_NeoPixel.h"
 #include "Snips_Lights.h"
 
-#define DEBUG false
-
 #define PIXELS_WHITE false
 #define PIXELS 24
 #define PIN 6
@@ -29,9 +27,6 @@ void loop() {
     SLState newState = SLStateNone;
     UPDATE_STATE(&newState, next);
     lights->setState(newState);
-    #if DEBUG
-      PRINT_STATE(newState);
-    #endif
   }
   lights->step();
 }

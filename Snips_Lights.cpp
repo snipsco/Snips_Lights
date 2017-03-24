@@ -51,6 +51,7 @@ void Snips_Lights::setState(SLState newState) {
       // Should never happen
       while (true) {}
   }
+  PRINT_STATE(newState);
 }
 
 void Snips_Lights::transitionToNextState() {
