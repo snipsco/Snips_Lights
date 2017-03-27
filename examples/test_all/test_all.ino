@@ -23,12 +23,11 @@ void setup() {
 
 //  0s: wake up
 //  5s: listen
-// 10s: yes or error
+// 10s: error
 // 15s: shut down
 // 20s: restart
 
 SLTimeInterval startTime = millis();
-bool showError = false;
 
 void loop() {
   SLState state = lights->getState();
@@ -37,13 +36,8 @@ void loop() {
     Serial.println("Set listening");
     lights->setState(SLStateListening);
   } else if (state != SLStateError && state != SLStateStandby && 10000 <= offset && offset < 15000) {
-    if (showError) {
-      Serial.println("Set error");
-      lights->setState(SLStateError);
-    } else {
-      Serial.println("Set yes");
-      lights->setState(SLStateStandby);
-    }
+    Serial.println("Set error");
+    lights->setState(SLStateError);
   } else if (state != SLStateNone && 15000 <= offset) {
     Serial.println("Set none");
     lights->setState(SLStateNone);
@@ -51,7 +45,6 @@ void loop() {
     Serial.println("\n---\n");
     lights->setState(SLStateWakingUp);
     startTime = millis();
-    showError = !showError;
   }
   lights->step();
 }
